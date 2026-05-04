@@ -29,3 +29,5 @@ yarn-error.log*
 # Build
 dist/
 build/
+.next/
+node_modules/
