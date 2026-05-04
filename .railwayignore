@@ -1,0 +1,5 @@
+.env
+.env.example
+demo.txt
+nodemon.json
+*.txt

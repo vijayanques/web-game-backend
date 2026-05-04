@@ -1,0 +1,10 @@
+[deploy]
+startCommand = "node src/server.js"
+
+[build]
+builder = "nixpacks"
+
+[build.env]
+CLOUDINARY_CLOUD_NAME = "dqslodfmh"
+CLOUDINARY_API_KEY = "668431224373237"
+CLOUDINARY_API_SECRET = "Cg0zNSS0FHUyobnsA6SNt8s5C04"
