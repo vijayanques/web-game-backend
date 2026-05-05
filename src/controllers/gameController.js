@@ -221,14 +221,19 @@ exports.createGame = async (req, res) => {
       gameUrl,
     } = req.body;
     let thumbnail = null;
+    let videoUrl = null;
 
-    // Upload thumbnail to Cloudinary if provided
-    if (req.file) {
+    console.log('📝 Creating game:', { categoryId, title, genre, rating });
+    console.log('📁 Files:', req.files ? Object.keys(req.files) : 'none');
+
+    // Upload thumbnail
+    if (req.files?.thumbnail?.[0]) {
       try {
-        const result = await uploadToCloudinary(req.file.buffer, req.file.originalname);
+        const result = await uploadToCloudinary(req.files.thumbnail[0].buffer, req.files.thumbnail[0].originalname, 'image');
         thumbnail = result.secure_url;
+        console.log('✅ Thumbnail:', thumbnail);
       } catch (uploadError) {
-        console.error('Thumbnail upload failed:', uploadError);
+        console.error('❌ Thumbnail error:', uploadError.message);
         return res.status(400).json({
           success: false,
           message: 'Thumbnail upload failed',
@@ -237,8 +242,25 @@ exports.createGame = async (req, res) => {
       }
     }
 
+    // Upload video
+    if (req.files?.video?.[0]) {
+      try {
+        const result = await uploadToCloudinary(req.files.video[0].buffer, req.files.video[0].originalname, 'video');
+        videoUrl = result.secure_url;
+        console.log('✅ Video:', videoUrl);
+      } catch (uploadError) {
+        console.error('❌ Video error:', uploadError.message);
+        return res.status(400).json({
+          success: false,
+          message: 'Video upload failed',
+          error: uploadError.message,
+        });
+      }
+    }
+
     // Validate required fields
     if (!categoryId || !title || !genre) {
+      console.error('❌ Missing required fields');
       return res.status(400).json({
         success: false,
         message: 'categoryId, title, and genre are required',
@@ -248,37 +270,54 @@ exports.createGame = async (req, res) => {
     // Verify category exists
     const category = await Category.findByPk(categoryId);
     if (!category) {
+      console.error('❌ Category not found:', categoryId);
       return res.status(404).json({
         success: false,
         message: 'Category not found',
       });
     }
 
-    // Generate slug from title
+    // Generate slug
     const slug = generateSlug(title);
 
+    // Convert and validate rating
+    let ratingValue = 0;
+    if (rating) {
+      ratingValue = parseFloat(rating);
+      if (isNaN(ratingValue) || ratingValue < 0 || ratingValue > 10) {
+        ratingValue = 0;
+      }
+    }
+
+    console.log('📊 Final data:', { categoryId: parseInt(categoryId), title, genre, rating: ratingValue });
+
     const game = await Game.create({
-      categoryId,
+      categoryId: parseInt(categoryId),
       title,
       slug,
-      description,
+      description: description || '',
       thumbnail,
+      videoUrl,
       genre,
-      releaseDate,
-      rating,
-      gameUrl,
+      releaseDate: releaseDate || null,
+      rating: ratingValue,
+      gameUrl: gameUrl || '',
     });
 
+    console.log('✅ Game created:', game.id);
     res.status(201).json({
       success: true,
       message: 'Game created successfully',
       data: game,
     });
   } catch (error) {
+    console.error('❌ Error:', error.message);
+    console.error('❌ Stack:', error.stack);
     res.status(500).json({
       success: false,
       message: 'Error creating game',
       error: error.message,
+      details: error.errors ? error.errors.map(e => e.message) : null,
     });
   }
 };
@@ -298,17 +337,37 @@ exports.updateGame = async (req, res) => {
       gameUrl,
     } = req.body;
     let thumbnail = null;
+    let videoUrl = null;
 
-    // Upload thumbnail to Cloudinary if provided
-    if (req.file) {
+    console.log('📝 Updating game:', id);
+
+    // Upload thumbnail
+    if (req.files?.thumbnail?.[0]) {
       try {
-        const result = await uploadToCloudinary(req.file.buffer, req.file.originalname);
+        const result = await uploadToCloudinary(req.files.thumbnail[0].buffer, req.files.thumbnail[0].originalname, 'image');
         thumbnail = result.secure_url;
+        console.log('✅ Thumbnail:', thumbnail);
       } catch (uploadError) {
-        console.error('Thumbnail upload failed:', uploadError);
+        console.error('❌ Thumbnail error:', uploadError.message);
         return res.status(400).json({
           success: false,
           message: 'Thumbnail upload failed',
+          error: uploadError.message,
+        });
+      }
+    }
+
+    // Upload video
+    if (req.files?.video?.[0]) {
+      try {
+        const result = await uploadToCloudinary(req.files.video[0].buffer, req.files.video[0].originalname, 'video');
+        videoUrl = result.secure_url;
+        console.log('✅ Video:', videoUrl);
+      } catch (uploadError) {
+        console.error('❌ Video error:', uploadError.message);
+        return res.status(400).json({
+          success: false,
+          message: 'Video upload failed',
           error: uploadError.message,
         });
       }
@@ -341,24 +400,34 @@ exports.updateGame = async (req, res) => {
     }
     if (description) game.description = description;
     if (thumbnail) game.thumbnail = thumbnail;
+    if (videoUrl) game.videoUrl = videoUrl;
     if (genre) game.genre = genre;
     if (releaseDate) game.releaseDate = releaseDate;
-    if (rating !== undefined) game.rating = rating;
+    if (rating !== undefined) {
+      let ratingValue = parseFloat(rating);
+      if (isNaN(ratingValue) || ratingValue < 0 || ratingValue > 10) {
+        ratingValue = 0;
+      }
+      game.rating = ratingValue;
+    }
     if (isActive !== undefined) game.isActive = isActive;
     if (gameUrl) game.gameUrl = gameUrl;
 
     await game.save();
 
+    console.log('✅ Game updated:', game.id);
     res.status(200).json({
       success: true,
       message: 'Game updated successfully',
       data: game,
     });
   } catch (error) {
+    console.error('❌ Error:', error.message);
     res.status(500).json({
       success: false,
       message: 'Error updating game',
       error: error.message,
+      details: error.errors ? error.errors.map(e => e.message) : null,
     });
   }
 };

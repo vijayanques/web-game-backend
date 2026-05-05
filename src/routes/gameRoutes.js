@@ -19,11 +19,17 @@ router.get('/category/:categoryId', gameController.getGamesByCategory);
 // GET game by ID
 router.get('/:id', gameController.getGameById);
 
-// POST create new game with thumbnail upload
-router.post('/', upload.single('thumbnail'), gameController.createGame);
+// POST create new game with thumbnail and video upload
+router.post('/', upload.fields([
+  { name: 'thumbnail', maxCount: 1 },
+  { name: 'video', maxCount: 1 }
+]), gameController.createGame);
 
-// PUT update game with thumbnail upload
-router.put('/:id', upload.single('thumbnail'), gameController.updateGame);
+// PUT update game with thumbnail and video upload
+router.put('/:id', upload.fields([
+  { name: 'thumbnail', maxCount: 1 },
+  { name: 'video', maxCount: 1 }
+]), gameController.updateGame);
 
 // DELETE game
 router.delete('/:id', gameController.deleteGame);

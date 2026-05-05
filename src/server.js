@@ -48,26 +48,26 @@ app.use(errorHandler);
 const PORT = process.env.PORT || 8000;
 
 const server = app.listen(PORT, () => {
-  console.log(`✅ Server running on PORT ${PORT}`);
-  console.log(`📍 Health check: http://localhost:${PORT}/health`);
-  console.log('⏳ Attempting to sync database...');
+  console.log(`Server running on PORT ${PORT}`);
+  console.log(` Health check: http://localhost:${PORT}/health`);
+  console.log(' Attempting to sync database...');
 });
 
 sequelize
   .sync({ alter: false })
   .then(() => {
-    console.log('✅ Database synchronized successfully');
+    console.log(' Database synchronized successfully');
   })
   .catch((err) => {
-    console.warn('⚠️  Database sync failed:', err.message);
-    console.warn('⚠️  Add a MySQL database to Railway to enable database features');
-    console.warn('⚠️  Go to Railway Dashboard → + New → Database → MySQL');
+    console.warn('  Database sync failed:', err.message);
+    console.warn('  Add a MySQL database to Railway to enable database features');
+    console.warn('  Go to Railway Dashboard → + New → Database → MySQL');
   });
 
 process.on('SIGINT', () => {
-  console.log('\n🛑 Shutting down gracefully...');
+  console.log('\n Shutting down gracefully...');
   server.close(() => {
-    console.log('✅ Server closed');
+    console.log(' Server closed');
     sequelize.close();
     process.exit(0);
   });

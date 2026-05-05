@@ -46,6 +46,10 @@ const Game = sequelize.define(
       type: DataTypes.STRING(255),
       allowNull: true,
     },
+    videoUrl: {
+      type: DataTypes.STRING(500),
+      allowNull: true,
+    },
     gameUrl: {
       type: DataTypes.STRING(500),
       allowNull: true,
