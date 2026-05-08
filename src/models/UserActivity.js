@@ -4,13 +4,13 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
-console.log('📝 Loading UserActivity model...');
+console.log(' Loading UserActivity model...');
 console.log('Sequelize type:', typeof sequelize);
 console.log('Sequelize.define type:', typeof sequelize?.define);
 
 if (!sequelize || typeof sequelize.define !== 'function') {
-  console.error('❌ Sequelize object:', sequelize);
-  throw new Error('❌ Sequelize instance is invalid in UserActivity.js');
+  console.error(' Sequelize object:', sequelize);
+  throw new Error(' Sequelize instance is invalid in UserActivity.js');
 }
 
 const UserActivity = sequelize.define(

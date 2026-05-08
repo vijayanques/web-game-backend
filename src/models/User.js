@@ -4,17 +4,17 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
-console.log('📝 Loading User model...');
+console.log(' Loading User model...');
 console.log('Sequelize type:', typeof sequelize);
 console.log('Sequelize.define type:', typeof sequelize?.define);
 
 if (!sequelize) {
-  throw new Error('❌ Sequelize instance is undefined in User.js');
+  throw new Error(' Sequelize instance is undefined in User.js');
 }
 
 if (typeof sequelize.define !== 'function') {
-  console.error('❌ Sequelize object:', sequelize);
-  throw new Error('❌ sequelize.define is not a function. Sequelize object is invalid.');
+  console.error(' Sequelize object:', sequelize);
+  throw new Error(' sequelize.define is not a function. Sequelize object is invalid.');
 }
 
 const User = sequelize.define(

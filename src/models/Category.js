@@ -9,8 +9,8 @@ console.log('Sequelize type:', typeof sequelize);
 console.log('Sequelize.define type:', typeof sequelize?.define);
 
 if (!sequelize || typeof sequelize.define !== 'function') {
-  console.error('❌ Sequelize object:', sequelize);
-  throw new Error('❌ Sequelize instance is invalid in Category.js');
+  console.error(' Sequelize object:', sequelize);
+  throw new Error(' Sequelize instance is invalid in Category.js');
 }
 
 const Category = sequelize.define(

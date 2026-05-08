@@ -9,7 +9,7 @@ const Category = require('./Category');
 const Game = require('./Game');
 const UserActivity = require('./UserActivity');
 
-console.log('📦 Initializing models...');
+console.log(' Initializing models...');
 
 // Define associations
 Category.hasMany(Game, {
@@ -57,7 +57,7 @@ UserActivity.belongsTo(Category, {
   as: 'category',
 });
 
-console.log('✅ Models initialized successfully');
+console.log(' Models initialized successfully');
 
 module.exports = {
   User,
