@@ -80,12 +80,16 @@ exports.getAllCategoriesForAdmin = async (req, res) => {
   }
 };
 
-// Get single category with its games
+// Get single category with its games (supports both ID and slug)
 exports.getCategoryWithGames = async (req, res) => {
   try {
     const { id } = req.params;
 
-    const category = await Category.findByPk(id, {
+    // Check if id is a number (ID) or string (slug)
+    const isNumeric = !isNaN(id);
+    
+    const category = await Category.findOne({
+      where: isNumeric ? { id } : { slug: id },
       include: [
         {
           model: Game,
