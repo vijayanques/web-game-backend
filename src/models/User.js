@@ -45,14 +45,6 @@ const User = sequelize.define(
       type: DataTypes.STRING(255),
       allowNull: false,
     },
-    resetToken: {
-      type: DataTypes.STRING(255),
-      allowNull: true,
-    },
-    resetTokenExpiry: {
-      type: DataTypes.DATE,
-      allowNull: true,
-    },
     score: {
       type: DataTypes.INTEGER,
       defaultValue: 0,

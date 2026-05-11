@@ -8,6 +8,7 @@ const gameRoutes = require('./gameRoutes');
 const topPicksRoutes = require('./topPicksRoutes');
 const userActivityRoutes = require('./userActivityRoutes');
 const adminRoutes = require('./adminRoutes');
+const seoRoutes = require('./seoRoutes');
 
 const router = express.Router();
 
@@ -18,6 +19,7 @@ router.use('/api/games', gameRoutes);
 router.use('/api/top-picks', topPicksRoutes);
 router.use('/api/user-activity', userActivityRoutes);
 router.use('/api/admin', adminRoutes);
+router.use('/api/seo', seoRoutes);
 
 // Health check endpoint
 router.get('/health', (req, res) => {

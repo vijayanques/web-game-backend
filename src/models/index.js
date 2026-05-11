@@ -8,6 +8,7 @@ const User = require('./User');
 const Category = require('./Category');
 const Game = require('./Game');
 const UserActivity = require('./UserActivity');
+const SeoMetadata = require('./SeoMetadata');
 
 console.log(' Initializing models...');
 
@@ -64,5 +65,6 @@ module.exports = {
   Category,
   Game,
   UserActivity,
+  SeoMetadata,
   sequelize,
 };

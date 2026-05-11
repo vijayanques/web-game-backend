@@ -1,12 +1,18 @@
 const express = require('express');
 require('dotenv').config();
 
+// Ensure Railway environment variables take precedence
+if (!process.env.FRONTEND_URL) {
+  process.env.FRONTEND_URL = 'https://game-web-app1.vercel.app';
+}
+
 // Temporary hardcode for Cloudinary
 process.env.CLOUDINARY_CLOUD_NAME = process.env.CLOUDINARY_CLOUD_NAME || 'dqslodfmh';
 process.env.CLOUDINARY_API_KEY = process.env.CLOUDINARY_API_KEY || '668431224373237';
 process.env.CLOUDINARY_API_SECRET = process.env.CLOUDINARY_API_SECRET || 'Cg0zNSS0FHUyobnsA6SNt8s5C04';
 
 console.log('🚀 Starting server...');
+console.log('📍 FRONTEND_URL:', process.env.FRONTEND_URL);
 
 const sequelize = require('./config/database');
 const models = require('./models');
