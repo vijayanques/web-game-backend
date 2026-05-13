@@ -140,3 +140,9 @@ sequelize
   });
 
 module.exports = sequelize;
+
+
+
+
+
+

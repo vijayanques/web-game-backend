@@ -5,6 +5,13 @@ const express = require('express');
 const router = express.Router();
 const seoController = require('../controllers/seoController');
 
+// IMPORTANT: More specific routes must come BEFORE generic routes
+// Get all SEO metadata by type (game, category, or page)
+router.get('/type/:entityType', seoController.getSeoMetadataByType);
+
+// Get SEO metadata by entity type and slug
+router.get('/type/:entityType/slug/:pageSlug', seoController.getSeoMetadataBySlug);
+
 // Get SEO metadata for a specific entity
 router.get('/:entityType/:entityId', seoController.getSeoMetadata);
 
@@ -16,8 +23,5 @@ router.put('/:entityType/:entityId', seoController.upsertSeoMetadata);
 
 // Delete SEO metadata
 router.delete('/:entityType/:entityId', seoController.deleteSeoMetadata);
-
-// Get all SEO metadata by type (game or category)
-router.get('/type/:entityType', seoController.getSeoMetadataByType);
 
 module.exports = router;

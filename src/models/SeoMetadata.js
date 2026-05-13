@@ -17,7 +17,7 @@ const SeoMetadata = sequelize.define(
       allowNull: false,
     },
     entityId: {
-      type: DataTypes.INTEGER,
+      type: DataTypes.BIGINT,
       allowNull: false,
     },
     pageName: {

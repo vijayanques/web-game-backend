@@ -9,6 +9,9 @@ const Category = require('./Category');
 const Game = require('./Game');
 const UserActivity = require('./UserActivity');
 const SeoMetadata = require('./SeoMetadata');
+const Notification = require('./Notification')(sequelize);
+const FirebaseToken = require('./FirebaseToken')(sequelize);
+const AdConfig = require('./AdConfig')(sequelize);
 
 console.log(' Initializing models...');
 
@@ -58,6 +61,52 @@ UserActivity.belongsTo(Category, {
   as: 'category',
 });
 
+// Notification associations
+User.hasMany(Notification, {
+  foreignKey: 'userId',
+  as: 'notifications',
+  onDelete: 'CASCADE',
+});
+
+Notification.belongsTo(User, {
+  foreignKey: 'userId',
+  as: 'user',
+});
+
+Game.hasMany(Notification, {
+  foreignKey: 'relatedGameId',
+  as: 'notifications',
+  onDelete: 'SET NULL',
+});
+
+Notification.belongsTo(Game, {
+  foreignKey: 'relatedGameId',
+  as: 'game',
+});
+
+Category.hasMany(Notification, {
+  foreignKey: 'relatedCategoryId',
+  as: 'notifications',
+  onDelete: 'SET NULL',
+});
+
+Notification.belongsTo(Category, {
+  foreignKey: 'relatedCategoryId',
+  as: 'category',
+});
+
+// FirebaseToken associations
+User.hasMany(FirebaseToken, {
+  foreignKey: 'userId',
+  as: 'firebaseTokens',
+  onDelete: 'CASCADE',
+});
+
+FirebaseToken.belongsTo(User, {
+  foreignKey: 'userId',
+  as: 'user',
+});
+
 console.log(' Models initialized successfully');
 
 module.exports = {
@@ -66,5 +115,8 @@ module.exports = {
   Game,
   UserActivity,
   SeoMetadata,
+  Notification,
+  FirebaseToken,
+  AdConfig,
   sequelize,
 };

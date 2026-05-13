@@ -18,6 +18,8 @@ const sequelize = require('./config/database');
 const models = require('./models');
 const routes = require('./routes');
 const { corsMiddleware, requestLogger, errorHandler, notFoundHandler } = require('./middleware');
+const { Server } = require('socket.io');
+const socketService = require('./services/socketService');
 
 const app = express();
 
@@ -58,6 +60,15 @@ const server = app.listen(PORT, () => {
   console.log(` Health check: http://localhost:${PORT}/health`);
   console.log(' Attempting to sync database...');
 });
+
+const io = new Server(server, {
+  cors: {
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS', 'HEAD'],
+    credentials: true,
+  }
+});
+socketService.init(io);
 
 sequelize
   .sync({ alter: false })

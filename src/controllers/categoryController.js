@@ -3,6 +3,7 @@
 
 const { Category, Game } = require('../models');
 const { uploadToCloudinary } = require('../utils/cloudinaryUpload');
+const notificationService = require('../services/notificationService');
 
 // Get all categories with their games
 exports.getAllCategoriesWithGames = async (req, res) => {
@@ -87,7 +88,7 @@ exports.getCategoryWithGames = async (req, res) => {
 
     // Check if id is a number (ID) or string (slug)
     const isNumeric = !isNaN(id);
-    
+
     const category = await Category.findOne({
       where: isNumeric ? { id } : { slug: id },
       include: [
@@ -135,9 +136,9 @@ exports.createCategory = async (req, res) => {
   try {
     const { name, description, icon } = req.body;
     let image = null;
-    
+
     console.log('Received category data:', { name, description, icon }); // Debug log
-    
+
     // Upload image to Cloudinary if provided
     if (req.file) {
       try {
@@ -178,6 +179,20 @@ exports.createCategory = async (req, res) => {
 
     console.log('Category created:', category.toJSON()); // Debug log
 
+    // Send notification
+    try {
+      await notificationService.createAndSendNotification({
+        title: 'New Category Added',
+        body: `${name} category has been added`,
+        type: 'category_added',
+        redirectUrl: `/category/${category.slug}`,
+        relatedCategoryId: category.id,
+        imageUrl: category.image,
+      }, true);
+    } catch (notificationError) {
+      console.error('Notification error:', notificationError);
+    }
+
     res.status(201).json({
       success: true,
       message: 'Category created successfully',
@@ -199,7 +214,7 @@ exports.updateCategory = async (req, res) => {
     const { id } = req.params;
     const { name, description, icon, isActive } = req.body;
     let image = null;
-    
+
     // Upload image to Cloudinary if provided
     if (req.file) {
       try {

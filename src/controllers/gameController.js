@@ -3,6 +3,7 @@
 
 const { Game, Category } = require('../models');
 const { uploadToCloudinary } = require('../utils/cloudinaryUpload');
+const notificationService = require('../services/notificationService');
 
 // Helper function to generate slug from title
 const generateSlug = (title) => {
@@ -18,15 +19,15 @@ const generateSlug = (title) => {
 exports.getAllGames = async (req, res) => {
   try {
     const { search, category_id } = req.query;
-    
+
     // Build where clause
     const whereClause = { isActive: true };
-    
+
     // Add category filter if provided
     if (category_id) {
       whereClause.categoryId = category_id;
     }
-    
+
     // Add search filter if provided
     if (search) {
       const { Op } = require('sequelize');
@@ -66,7 +67,7 @@ exports.getAllGames = async (req, res) => {
 exports.searchGames = async (req, res) => {
   try {
     const { q } = req.query;
-    
+
     // Return empty array if search query is too short
     if (!q || q.trim().length < 2) {
       return res.status(200).json({
@@ -77,7 +78,7 @@ exports.searchGames = async (req, res) => {
     }
 
     const { Op } = require('sequelize');
-    
+
     // Search in games and include category
     const games = await Game.findAll({
       where: {
@@ -147,7 +148,7 @@ exports.getGameById = async (req, res) => {
 
     // Check if id is a number (ID) or string (slug)
     const isNumeric = !isNaN(id);
-    
+
     const game = await Game.findOne({
       where: isNumeric ? { id } : { slug: id },
       include: [
@@ -305,6 +306,22 @@ exports.createGame = async (req, res) => {
     });
 
     console.log('✅ Game created:', game.id);
+
+    // Send notification
+    try {
+      await notificationService.createAndSendNotification({
+        title: 'New Game Added',
+        body: `${title} has been added to ${category.name}`,
+        type: 'game_added',
+        redirectUrl: `/game/${game.slug}`,
+        relatedGameId: game.id,
+        relatedCategoryId: categoryId,
+        imageUrl: game.thumbnail,
+      }, true);
+    } catch (notificationError) {
+      console.error('Notification error:', notificationError);
+    }
+
     res.status(201).json({
       success: true,
       message: 'Game created successfully',
@@ -416,6 +433,22 @@ exports.updateGame = async (req, res) => {
     await game.save();
 
     console.log('✅ Game updated:', game.id);
+
+    // Send notification
+    try {
+      await notificationService.createAndSendNotification({
+        title: 'Game Updated',
+        body: `${game.title} has been updated`,
+        type: 'game_updated',
+        redirectUrl: `/game/${game.slug}`,
+        relatedGameId: game.id,
+        relatedCategoryId: game.categoryId,
+        imageUrl: game.thumbnail,
+      }, true);
+    } catch (notificationError) {
+      console.error('Notification error:', notificationError);
+    }
+
     res.status(200).json({
       success: true,
       message: 'Game updated successfully',
