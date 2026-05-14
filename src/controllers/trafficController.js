@@ -33,8 +33,8 @@ exports.getTrafficStats = async (req, res) => {
   try {
     const now = new Date();
     
-    // Page Visits (Total actions)
-    const pageVisits = await SiteTraffic.count();
+    // Page Visits (Total actions of type 'page_view')
+    const pageVisits = await SiteTraffic.count({ where: { action: 'page_view' } });
     
     // Total Visitors (Unique IPs)
     const totalVisitors = await SiteTraffic.count({ distinct: true, col: 'ipAddress' });
