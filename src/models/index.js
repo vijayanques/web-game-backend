@@ -13,6 +13,7 @@ const Notification = require('./Notification')(sequelize);
 const FirebaseToken = require('./FirebaseToken')(sequelize);
 const AdConfig = require('./AdConfig')(sequelize);
 const SiteTraffic = require('./SiteTraffic')(sequelize);
+const BugReport = require('./BugReport')(sequelize);
 
 console.log(' Initializing models...');
 
@@ -120,5 +121,6 @@ module.exports = {
   FirebaseToken,
   AdConfig,
   SiteTraffic,
+  BugReport,
   sequelize,
 };

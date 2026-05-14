@@ -32,6 +32,9 @@ router.post('/reset-password', resetPasswordLimiter, userController.resetPasswor
 // POST login
 router.post('/login', userController.loginUser);
 
+// POST google login
+router.post('/google-login', userController.googleLogin);
+
 // GET all users
 router.get('/', userController.getAllUsers);
 

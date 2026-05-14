@@ -514,3 +514,64 @@ exports.loginUser = async (req, res) => {
     });
   }
 };
+
+// Google Login/Signup
+exports.googleLogin = async (req, res) => {
+  try {
+    const { email, username, googleId } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        message: 'Email is required for Google login',
+      });
+    }
+
+    // Find user by email
+    let user = await User.findOne({ where: { email } });
+
+    if (!user) {
+      // Create new user if they don't exist
+      // Generate a random username if not provided or taken
+      let finalUsername = username || email.split('@')[0];
+      const existingUsername = await User.findOne({ where: { username: finalUsername } });
+      if (existingUsername) {
+        finalUsername = `${finalUsername}_${Math.floor(Math.random() * 1000)}`;
+      }
+
+      // Generate a random password since they are using Google
+      const randomPassword = await bcrypt.hash(Math.random().toString(36), 10);
+
+      user = await User.create({
+        username: finalUsername,
+        email,
+        password: randomPassword,
+        lastLoginAt: new Date(),
+      });
+    } else {
+      // Update last login
+      user.lastLoginAt = new Date();
+      await user.save();
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'Google login successful',
+      data: {
+        id: user.id,
+        username: user.username,
+        email: user.email,
+        score: user.score,
+        level: user.level,
+        last_login_at: user.lastLoginAt,
+      },
+    });
+  } catch (error) {
+    console.error('Error during Google login:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error during Google login',
+      error: error.message,
+    });
+  }
+};
