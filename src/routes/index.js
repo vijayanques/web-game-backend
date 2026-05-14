@@ -12,6 +12,7 @@ const seoRoutes = require('./seoRoutes');
 const uploadRoutes = require('./uploadRoutes');
 const notificationRoutes = require('./notificationRoutes');
 const adsenseRoutes = require('./adsenseRoutes');
+const trafficRoutes = require('./trafficRoutes');
 
 const router = express.Router();
 
@@ -26,6 +27,7 @@ router.use('/api/seo', seoRoutes);
 router.use('/api/upload', uploadRoutes);
 router.use('/api/notifications', notificationRoutes);
 router.use('/api/adsense', adsenseRoutes);
+router.use('/api/traffic', trafficRoutes);
 
 // Health check endpoint
 router.get('/health', (req, res) => {

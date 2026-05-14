@@ -5,7 +5,7 @@ exports.getAdConfigs = async (req, res) => {
   try {
     const ads = await AdConfig.findAll({
       where: { status: true },
-      attributes: ['slot', 'adClient', 'adSlot', 'adType', 'responsive', 'imageUrl', 'targetUrl']
+      attributes: ['slot', 'adClient', 'adSlot', 'adType', 'responsive', 'imageUrl', 'targetUrl', 'allowedPages']
     });
 
     res.status(200).json({
@@ -44,7 +44,7 @@ exports.getAllAdConfigs = async (req, res) => {
 // Create or update ad configuration
 exports.upsertAdConfig = async (req, res) => {
   try {
-    const { slot, adClient, adSlot, adType, responsive, status, imageUrl, targetUrl } = req.body;
+    const { slot, adClient, adSlot, adType, responsive, status, imageUrl, targetUrl, allowedPages } = req.body;
 
     if (!slot) {
       return res.status(400).json({
@@ -63,6 +63,7 @@ exports.upsertAdConfig = async (req, res) => {
       ad.imageUrl = imageUrl || ad.imageUrl;
       ad.targetUrl = targetUrl || ad.targetUrl;
       ad.adType = adType || ad.adType;
+      ad.allowedPages = allowedPages !== undefined ? allowedPages : ad.allowedPages;
       ad.responsive = responsive !== undefined ? responsive : ad.responsive;
       ad.status = status !== undefined ? status : ad.status;
       await ad.save();
@@ -75,6 +76,7 @@ exports.upsertAdConfig = async (req, res) => {
         imageUrl,
         targetUrl,
         adType: adType || 'static',
+        allowedPages: allowedPages || null,
         responsive: responsive !== undefined ? responsive : true,
         status: status !== undefined ? status : true,
       });

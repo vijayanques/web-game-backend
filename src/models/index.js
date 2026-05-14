@@ -12,6 +12,7 @@ const SeoMetadata = require('./SeoMetadata');
 const Notification = require('./Notification')(sequelize);
 const FirebaseToken = require('./FirebaseToken')(sequelize);
 const AdConfig = require('./AdConfig')(sequelize);
+const SiteTraffic = require('./SiteTraffic')(sequelize);
 
 console.log(' Initializing models...');
 
@@ -118,5 +119,6 @@ module.exports = {
   Notification,
   FirebaseToken,
   AdConfig,
+  SiteTraffic,
   sequelize,
 };

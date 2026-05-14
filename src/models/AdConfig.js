@@ -30,6 +30,10 @@ module.exports = (sequelize) => {
         type: DataTypes.STRING(500),
         allowNull: true, // For static/promotional ads
       },
+      allowedPages: {
+        type: DataTypes.JSON,
+        allowNull: true,
+      },
       adType: {
         type: DataTypes.ENUM('adsense', 'static', 'promotional'),
         defaultValue: 'static',

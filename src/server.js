@@ -31,12 +31,12 @@ app.use((req, res, next) => {
   res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control, Pragma');
   res.header('Access-Control-Allow-Credentials', 'true');
   res.header('Access-Control-Max-Age', '86400'); // 24 hours
-  
+
   // Handle preflight OPTIONS requests immediately
   if (req.method === 'OPTIONS') {
     return res.status(204).end();
   }
-  
+
   next();
 });
 
@@ -71,7 +71,7 @@ const io = new Server(server, {
 socketService.init(io);
 
 sequelize
-  .sync({ alter: false })
+  .sync({ alter: process.env.SYNC_ALTER === 'true' })
   .then(() => {
     console.log(' Database synchronized successfully');
   })
