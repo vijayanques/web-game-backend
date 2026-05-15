@@ -3,6 +3,9 @@
 
 const { SeoMetadata, Game, Category } = require('../models');
 const { Op } = require('sequelize');
+const { scanFrontendPages } = require('../utils/routeScanner');
+const path = require('path');
+const fs = require('fs');
 
 // Get SEO metadata for an entity
 exports.getSeoMetadata = async (req, res) => {
@@ -323,5 +326,39 @@ exports.getSeoMetadataByType = async (req, res) => {
   } catch (error) {
     console.error('Error fetching SEO metadata:', error);
     res.status(500).json({ message: 'Error fetching SEO metadata' });
+  }
+};
+// Get all available static pages from the frontend
+exports.getAvailablePages = async (req, res) => {
+  try {
+    // Attempt to scan the frontend directory
+    // Try multiple path resolutions to find the frontend app directory
+    const possiblePaths = [
+      process.env.FRONTEND_SRC_PATH,
+      path.join(__dirname, '../../../game_web_app1/src/app'),
+      path.join(process.cwd(), '../game_web_app1/src/app'),
+      'D:\\vijay\\game_web_app1\\src\\app'
+    ].filter(Boolean);
+
+    let frontendPath = '';
+    for (const p of possiblePaths) {
+      if (fs.existsSync(p)) {
+        frontendPath = p;
+        break;
+      }
+    }
+    
+    if (frontendPath) {
+      console.log('🔍 Scanning frontend pages at:', frontendPath);
+      const pages = await scanFrontendPages(frontendPath);
+      return res.json(pages);
+    } else {
+      console.warn('⚠️ Frontend app path not found. Please check FRONTEND_SRC_PATH in .env');
+      // If scanner fails, return at least the home page as a safe fallback
+      return res.json([{ name: 'Home / Landing Page', slug: '/' }]);
+    }
+  } catch (error) {
+    console.error('❌ Error scanning frontend pages:', error);
+    res.status(500).json({ message: 'Error fetching available pages' });
   }
 };

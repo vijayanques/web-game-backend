@@ -9,6 +9,9 @@ const seoController = require('../controllers/seoController');
 // Get all SEO metadata by type (game, category, or page)
 router.get('/type/:entityType', seoController.getSeoMetadataByType);
 
+// Get all available static pages from the frontend (scanned)
+router.get('/pages/available', seoController.getAvailablePages);
+
 // Get SEO metadata by entity type and slug
 router.get('/type/:entityType/slug/:pageSlug', seoController.getSeoMetadataBySlug);
 
