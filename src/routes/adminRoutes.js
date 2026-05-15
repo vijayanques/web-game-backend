@@ -87,4 +87,7 @@ router.get('/verify', (req, res) => {
 // Dashboard statistics
 router.get('/dashboard/stats', adminController.getDashboardStats);
 
+// Reset trending stats
+router.post('/reset-trending', adminController.resetTrendingStats);
+
 module.exports = router;

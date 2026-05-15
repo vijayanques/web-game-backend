@@ -1,7 +1,7 @@
 // Game Controller
 // Handles all game-related business logic
 
-const { Game, Category } = require('../models');
+const { Game, Category, GamePlayLog } = require('../models');
 const { uploadToCloudinary } = require('../utils/cloudinaryUpload');
 const notificationService = require('../services/notificationService');
 
@@ -489,6 +489,111 @@ exports.deleteGame = async (req, res) => {
     res.status(500).json({
       success: false,
       message: 'Error deleting game',
+      error: error.message,
+    });
+  }
+};
+
+// Track game play activity
+exports.trackGamePlay = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Check if id is a number (ID) or string (slug)
+    const isNumeric = !isNaN(id);
+    const where = isNumeric ? { id } : { slug: id };
+
+    const game = await Game.findOne({ where });
+
+    if (!game) {
+      return res.status(404).json({
+        success: false,
+        message: 'Game not found',
+      });
+    }
+
+    // Update lastPlayed timestamp (always update this)
+    game.lastPlayed = new Date();
+    game.totalPlays = (game.totalPlays || 0) + 1;
+
+    // Check for unique play today to increment todayPlays
+    const ipAddress = req.ip || req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+    const today = new Date().toISOString().split('T')[0];
+
+    try {
+      // Try to create a play log (will fail if duplicate due to unique index)
+      await GamePlayLog.create({
+        gameId: game.id,
+        ipAddress: ipAddress,
+        playDate: today
+      });
+
+      // If we reach here, it's a unique play for today
+      game.todayPlays = (game.todayPlays || 0) + 1;
+    } catch (logError) {
+      // Duplicate play today, don't increment todayPlays
+      console.log(`Skipping todayPlays increment for game ${game.id} (duplicate IP ${ipAddress} today)`);
+    }
+
+    await game.save();
+
+    res.status(200).json({
+      success: true,
+      message: 'Game play tracked successfully',
+      data: {
+        id: game.id,
+        totalPlays: game.totalPlays,
+        todayPlays: game.todayPlays,
+        isUniqueToday: !req.duplicatePlay // (internal flag if we wanted)
+      }
+    });
+  } catch (error) {
+    console.error('Error tracking game play:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error tracking game play',
+      error: error.message,
+    });
+  }
+};
+
+// Get trending games
+exports.getTrendingGames = async (req, res) => {
+  try {
+    const games = await Game.findAll({
+      where: { isActive: true },
+      include: [
+        {
+          model: Category,
+          as: 'category',
+          attributes: ['id', 'name'],
+        },
+      ],
+    });
+
+    // Calculate trending score for each game
+    // Formula: Trending Score = todayPlays + (totalPlays / 10)
+    const trendingGames = games
+      .map(game => {
+        const plainGame = game.get({ plain: true });
+        const trendingScore = (plainGame.todayPlays || 0) + ((plainGame.totalPlays || 0) / 10);
+        return {
+          ...plainGame,
+          trendingScore,
+        };
+      })
+      .sort((a, b) => b.trendingScore - a.trendingScore)
+      .slice(0, 20); // Top 20 trending games
+
+    res.status(200).json({
+      success: true,
+      data: trendingGames,
+    });
+  } catch (error) {
+    console.error('Error fetching trending games:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Error fetching trending games',
       error: error.message,
     });
   }

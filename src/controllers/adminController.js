@@ -7,7 +7,7 @@ const { Op } = require('sequelize');
 exports.getDashboardStats = async (req, res) => {
   try {
     console.log('📊 Dashboard stats requested');
-    
+
     // Check if database is available
     let isDatabaseAvailable = false;
     try {
@@ -18,7 +18,7 @@ exports.getDashboardStats = async (req, res) => {
     } catch (dbCheckError) {
       console.error('❌ Database not connected:', dbCheckError.message);
     }
-    
+
     if (!isDatabaseAvailable) {
       console.warn('⚠️ Database not connected, returning empty data');
       return res.json(getEmptyDashboardData());
@@ -34,7 +34,7 @@ exports.getDashboardStats = async (req, res) => {
     // Get active players (users with recent login)
     const thirtyDaysAgo = new Date();
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
-    
+
     const activePlayers = await User.count({
       where: {
         last_login_at: {
@@ -86,7 +86,7 @@ exports.getDashboardStats = async (req, res) => {
   } catch (error) {
     console.error('❌ Error fetching dashboard stats:', error.message);
     console.error('❌ Error stack:', error.stack);
-    
+
     // Return empty data on error
     return res.json(getEmptyDashboardData());
   }
@@ -112,7 +112,7 @@ async function checkDatabaseConnection() {
 function getEmptyDashboardData() {
   const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const dayNames = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-  
+
   // Generate empty user growth chart
   const userGrowthChart = [];
   for (let i = 5; i >= 0; i--) {
@@ -123,7 +123,7 @@ function getEmptyDashboardData() {
       value: 0
     });
   }
-  
+
   // Generate empty revenue chart
   const revenueChart = [];
   for (let i = 5; i >= 0; i--) {
@@ -134,7 +134,7 @@ function getEmptyDashboardData() {
       value: 0
     });
   }
-  
+
   // Generate empty active players chart
   const activePlayersChart = [];
   for (let i = 5; i >= 0; i--) {
@@ -145,20 +145,20 @@ function getEmptyDashboardData() {
       value: 0
     });
   }
-  
+
   // Generate empty game performance
   const gamePerformance = [];
   for (let i = 6; i >= 0; i--) {
     const date = new Date();
     date.setDate(date.getDate() - i);
     const dayIndex = (date.getDay() + 6) % 7;
-    
+
     gamePerformance.push({
       name: dayNames[dayIndex],
       value: 0
     });
   }
-  
+
   return {
     stats: {
       totalUsers: 0,
@@ -191,16 +191,16 @@ function getEmptyDashboardData() {
 async function generateRealUserGrowthChart() {
   const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const data = [];
-  
+
   // Get current date
   const now = new Date();
-  
+
   // Go back 6 months
   for (let i = 5; i >= 0; i--) {
     const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
     const monthStart = new Date(date.getFullYear(), date.getMonth(), 1);
     const monthEnd = new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59);
-    
+
     try {
       const count = await User.count({
         where: {
@@ -210,10 +210,10 @@ async function generateRealUserGrowthChart() {
           }
         }
       });
-      
+
       const monthName = monthNames[monthStart.getMonth()];
       console.log(`📊 ${monthName} ${monthStart.getFullYear()}: ${count} users`);
-      
+
       data.push({
         name: monthName,
         value: count
@@ -226,7 +226,7 @@ async function generateRealUserGrowthChart() {
       });
     }
   }
-  
+
   console.log('📈 Final User Growth Chart:', JSON.stringify(data));
   return data;
 }
@@ -237,16 +237,16 @@ async function generateRealUserGrowthChart() {
 async function generateRealActivePlayersChart() {
   const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   const data = [];
-  
+
   // Get current date
   const now = new Date();
-  
+
   // Go back 6 months
   for (let i = 5; i >= 0; i--) {
     const date = new Date(now.getFullYear(), now.getMonth() - i, 1);
     const monthStart = new Date(date.getFullYear(), date.getMonth(), 1);
     const monthEnd = new Date(date.getFullYear(), date.getMonth() + 1, 0, 23, 59, 59);
-    
+
     try {
       const count = await User.count({
         where: {
@@ -256,10 +256,10 @@ async function generateRealActivePlayersChart() {
           }
         }
       });
-      
+
       const monthName = monthNames[monthStart.getMonth()];
       console.log(`📊 Active Players in ${monthName} ${monthStart.getFullYear()}: ${count}`);
-      
+
       data.push({
         name: monthName,
         value: count
@@ -272,7 +272,7 @@ async function generateRealActivePlayersChart() {
       });
     }
   }
-  
+
   console.log('📈 Final Active Players Chart:', JSON.stringify(data));
   return data;
 }
@@ -307,3 +307,28 @@ function generateMockGamePerformance() {
     { name: dayNames[6], value: 4300 },
   ];
 }
+/**
+ * Reset trending stats for all games
+ */
+exports.resetTrendingStats = async (req, res) => {
+  try {
+    const { Game } = require('../models');
+
+    // Reset todayPlays for all games
+    await Game.update({ todayPlays: 0 }, { where: {} });
+
+    console.log('✅ Admin manually reset trending stats');
+
+    res.json({
+      success: true,
+      message: 'Trending stats reset successfully',
+    });
+  } catch (error) {
+    console.error('❌ Error resetting trending stats:', error.message);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to reset trending stats',
+      error: error.message,
+    });
+  }
+};

@@ -16,8 +16,14 @@ router.get('/', gameController.getAllGames);
 // GET games by category
 router.get('/category/:categoryId', gameController.getGamesByCategory);
 
+// GET trending games
+router.get('/trending', gameController.getTrendingGames);
+
 // GET game by ID
 router.get('/:id', gameController.getGameById);
+
+// POST track game play
+router.post('/:id/play', gameController.trackGamePlay);
 
 // POST create new game with thumbnail and video upload
 router.post('/', upload.fields([

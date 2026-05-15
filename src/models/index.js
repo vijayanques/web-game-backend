@@ -14,6 +14,7 @@ const FirebaseToken = require('./FirebaseToken')(sequelize);
 const AdConfig = require('./AdConfig')(sequelize);
 const SiteTraffic = require('./SiteTraffic')(sequelize);
 const BugReport = require('./BugReport')(sequelize);
+const GamePlayLog = require('./GamePlayLog');
 
 console.log(' Initializing models...');
 
@@ -122,5 +123,6 @@ module.exports = {
   AdConfig,
   SiteTraffic,
   BugReport,
+  GamePlayLog,
   sequelize,
 };

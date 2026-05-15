@@ -81,6 +81,21 @@ sequelize
     console.warn('  Go to Railway Dashboard → + New → Database → MySQL');
   });
 
+// Reset todayPlays every 24 hours at midnight
+setInterval(async () => {
+  try {
+    const now = new Date();
+    // Check every hour, but only perform update at midnight (00:xx)
+    if (now.getHours() === 0) {
+      const { Game } = require('./models');
+      await Game.update({ todayPlays: 0 }, { where: {} });
+      console.log('⏰ Midnight Reset: todayPlays cleared for all games');
+    }
+  } catch (error) {
+    console.error('❌ Error resetting todayPlays:', error);
+  }
+}, 60 * 60 * 1000); // Check every hour
+
 process.on('SIGINT', () => {
   console.log('\n Shutting down gracefully...');
   server.close(() => {

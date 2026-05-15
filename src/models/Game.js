@@ -70,6 +70,18 @@ const Game = sequelize.define(
         max: 10,
       },
     },
+    totalPlays: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
+    todayPlays: {
+      type: DataTypes.INTEGER,
+      defaultValue: 0,
+    },
+    lastPlayed: {
+      type: DataTypes.DATE,
+      allowNull: true,
+    },
     isActive: {
       type: DataTypes.BOOLEAN,
       defaultValue: true,

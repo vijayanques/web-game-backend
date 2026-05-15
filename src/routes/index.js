@@ -14,6 +14,7 @@ const notificationRoutes = require('./notificationRoutes');
 const adsenseRoutes = require('./adsenseRoutes');
 const trafficRoutes = require('./trafficRoutes');
 const bugReportRoutes = require('./bugReportRoutes');
+const firebaseTokenRoutes = require('./firebaseTokenRoutes');
 
 const router = express.Router();
 
@@ -30,6 +31,7 @@ router.use('/api/notifications', notificationRoutes);
 router.use('/api/adsense', adsenseRoutes);
 router.use('/api/traffic', trafficRoutes);
 router.use('/api/bug-reports', bugReportRoutes);
+router.use('/api/firebase-tokens', firebaseTokenRoutes);
 
 // Health check endpoint
 router.get('/health', (req, res) => {

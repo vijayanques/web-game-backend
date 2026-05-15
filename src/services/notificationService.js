@@ -143,6 +143,37 @@ const deleteNotification = async (notificationId) => {
   }
 };
 
+/**
+ * Send push notification via FCM
+ */
+const sendFcmNotification = async (token, payload) => {
+  try {
+    const admin = require('firebase-admin');
+
+    // Check if firebase-admin is initialized
+    if (!admin.apps.length) {
+      console.warn('⚠️ Firebase Admin not initialized. Skipping push notification.');
+      return null;
+    }
+
+    const message = {
+      notification: {
+        title: payload.title,
+        body: payload.body,
+      },
+      data: payload.data || {},
+      token: token,
+    };
+
+    const response = await admin.messaging().send(message);
+    console.log('🚀 FCM Notification sent successfully:', response);
+    return response;
+  } catch (error) {
+    console.error('❌ Error sending FCM notification:', error);
+    throw error;
+  }
+};
+
 module.exports = {
   createAndSendNotification,
   getUserNotifications,
@@ -150,4 +181,5 @@ module.exports = {
   markAsRead,
   markAllAsRead,
   deleteNotification,
+  sendFcmNotification,
 };
